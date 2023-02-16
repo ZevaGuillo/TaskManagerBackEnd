@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using TaskManager.Contracts.Task;
+using TaskManager.Models;
+using TaskManager.Services.Tasks;
 
 namespace TaskManager.Controllers;
 
@@ -8,16 +10,47 @@ namespace TaskManager.Controllers;
 public class TaskController : ControllerBase
 {
 
-    [HttpPost()]
+    private readonly ITaskService _taskService;
+
+    public TaskController(ITaskService taskService)
+    {
+        _taskService = taskService;
+    }
+
+    [HttpPost]
     public IActionResult CreateTask(CreateTaskRequest request)
     {
-        return Ok();
+        var task = new TaskModel(
+            Guid.NewGuid(),
+            request.Titulo,
+            request.Descripcion,
+            request.FechaFin,
+            request.FechaInicio,
+            request.Estado
+        );
+
+        // TODO: hacer base de datos
+        _taskService.CreateTask(task);
+
+        var response = new TaskResponse(
+            task.Id,
+            task.Titulo,
+            task.Descripcion,
+            task.FechaFin,
+            task.FechaInicio,
+            task.Estado
+        );
+    
+
+        return Ok(response);
     }
 
     [HttpGet()]
     public IActionResult GetTasks()
     {
-        return Ok();
+        Dictionary<Guid,TaskModel> task = _taskService.GetTasks();
+
+        return Ok(task);
     }
 
     [HttpPut("{id:guid}")]
