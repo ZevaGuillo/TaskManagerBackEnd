@@ -1,7 +1,11 @@
 
 
+using TaskManager.Contracts.Auth;
+using TaskManager.Models;
+
 namespace TaskManager.Services.Auth;
 public interface IAuthService
 {
-    string Authenticate(string correo, string contraseña);
+    User Register(CreateUserRequest newUser);
+    LoginResponse Login(LoginRequest data);
 }

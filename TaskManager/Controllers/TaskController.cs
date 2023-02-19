@@ -1,9 +1,11 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TaskManager.Contracts.Task;
 using TaskManager.Models;
 using TaskManager.Services.Tasks;
 
 namespace TaskManager.Controllers;
+
 
 [ApiController]
 [Route("[controller]")]
@@ -18,6 +20,7 @@ public class TaskController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize]
     public IActionResult CreateTask(CreateTaskRequest request)
     {
         var task = new TaskModel(

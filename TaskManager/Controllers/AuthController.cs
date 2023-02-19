@@ -19,13 +19,22 @@ public class AuthController : ControllerBase
     [HttpPost("crear")]
     public IActionResult CreateUser(CreateUserRequest request)
     {
-        return Ok("Nuevo usuario");
+        var user = _authService.Register(request);
+        return Ok(user);
     }
 
     [HttpPost]
     public IActionResult Login(LoginRequest request)
     {
-        return Ok("Login");
+        try
+        {
+            LoginResponse response = _authService.Login(request);
+            return Ok(response);
+        }
+        catch (System.Exception)
+        {
+            return BadRequest("si la contraseño con coincide");
+        }
     }
 
     [HttpGet("renovar")]
