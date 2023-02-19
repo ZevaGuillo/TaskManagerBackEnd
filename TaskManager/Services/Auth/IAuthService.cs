@@ -8,4 +8,5 @@ public interface IAuthService
 {
     User Register(CreateUserRequest newUser);
     LoginResponse Login(LoginRequest data);
+    LoginResponse RenovarToken(string token);
 }

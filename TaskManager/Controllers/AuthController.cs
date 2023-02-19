@@ -38,9 +38,17 @@ public class AuthController : ControllerBase
     }
 
     [HttpGet("renovar")]
-    public IActionResult RenovarToken()
+    public IActionResult RenovarToken(RenovarTokenRequest request)
     {
-        return Ok("renovar token");
+        try
+        {
+            LoginResponse response = _authService.RenovarToken(request.token);
+            return Ok(response);
+        }
+        catch (System.Exception)
+        {
+            return BadRequest("si la contraseño con coincide");
+        }
     }
 
 }
