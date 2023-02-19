@@ -1,6 +1,6 @@
 # TaskManager
 
-# Buber Breakfast API
+# API
 
 - [Task API](#buber-breakfast-api)
   - [Create Task](#create-breakfast)
