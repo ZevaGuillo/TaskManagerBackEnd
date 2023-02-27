@@ -1,4 +1,8 @@
+using CodeGeneral;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using System.Data;
+using System.Xml.Linq;
 using TaskManager.Contracts.Auth;
 using TaskManager.Services.Auth;
 
@@ -21,6 +25,17 @@ public class AuthController : ControllerBase
     {
         var user = _authService.Register(request);
         return Ok(user);
+    }
+
+    [Route("[action]")]
+    [HttpPost]
+    public async Task<ActionResult<List<CreateUserRequest>>> crearUsuario([BindRequired]string nombre, [BindRequired] string correo, [BindRequired] string contraseña)
+    {
+        var cadCon = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build().GetSection("ConnectionStrings")["conn_bd"];
+        XDocument xmlParam = XDocument.Parse("<CreateUserRequest><nombre>"+nombre+"</nombre><correo>"+correo+"</correo><contraseña>"+contraseña+"</contraseña></CreateUserRequest>");
+        Console.WriteLine(xmlParam.ToString());
+        DataSet dsResultados = await DBXmlMethods.EjecutaBase("creaUsuario", cadCon, "crea", xmlParam);
+        return Ok();
     }
 
     [HttpPost]
