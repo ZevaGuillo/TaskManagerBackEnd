@@ -15,18 +15,6 @@ public class AuthController : ControllerBase
 
     private readonly IAuthService _authService;
 
-    public AuthController(IAuthService authService)
-    {
-        _authService = authService;
-    }
-
-    [HttpPost("crear")]
-    public IActionResult CreateUser(CreateUserRequest request)
-    {
-        var user = _authService.Register(request);
-        return Ok(user);
-    }
-
     [Route("[action]")]
     [HttpPost]
     public async Task<ActionResult<List<CreateUserRequest>>> crearUsuario([BindRequired]string nombre, [BindRequired] string correo, [BindRequired] string contraseña)
@@ -34,36 +22,73 @@ public class AuthController : ControllerBase
         var cadCon = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build().GetSection("ConnectionStrings")["conn_bd"];
         XDocument xmlParam = XDocument.Parse("<CreateUserRequest><nombre>"+nombre+"</nombre><correo>"+correo+"</correo><contraseña>"+contraseña+"</contraseña></CreateUserRequest>");
         Console.WriteLine(xmlParam.ToString());
-        DataSet dsResultados = await DBXmlMethods.EjecutaBase("creaUsuario", cadCon, "crea", xmlParam);
-        return Ok();
+        DataSet dsResultados = await DBXmlMethods.EjecutaBase("Auth", cadCon, "crear", xmlParam);
+        List<object> lista = new List<object>();
+        if (dsResultados.Tables.Count > 0 && dsResultados.Tables[0].Rows.Count > 0)
+        {
+            foreach (DataRow row in dsResultados.Tables[0].Rows)
+            {
+                var auto = new
+                {
+                    Leyenda = row["estado"].ToString()
+                };
+                lista.Add(auto);
+            }
+        }
+        else
+        {
+            var auto = new
+            {
+                Leyenda = "Error... No se pudo procesar la operaciòn..."
+            };
+            lista.Add(auto);
+        }
+        return Ok(lista);
     }
 
+    [Route("[action]")]
     [HttpPost]
-    public IActionResult Login(LoginRequest request)
+    public async Task<ActionResult<List<LoginRequest>>> login([BindRequired] string correo, [BindRequired] string contraseña)
     {
-        try
+        var cadCon = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build().GetSection("ConnectionStrings")["conn_bd"];
+        XDocument xmlParam = XDocument.Parse("<LoginRequest><correo>" + correo + "</correo><contraseña>" + contraseña + "</contraseña></LoginRequest>");
+        Console.WriteLine(xmlParam.ToString());
+        DataSet dsResultados = await DBXmlMethods.EjecutaBase("Auth", cadCon, "login", xmlParam);
+        List<object> lista = new List<object>();
+        if (dsResultados.Tables.Count > 0 && dsResultados.Tables[0].Rows.Count > 0)
         {
-            LoginResponse response = _authService.Login(request);
-            return Ok(response);
+            foreach (DataRow row in dsResultados.Tables[0].Rows)
+            {
+                if (row["estado"].ToString() == "Contraseña valida")
+                {
+                    var auto = new
+                    {
+                        Nombre = row["nombres"].ToString(),
+                        Correo = row["correo"].ToString(),
+                        Leyenda = row["estado"].ToString()
+                    };
+                    lista.Add(auto);
+                }
+                else
+                {
+                    var auto = new
+                    {
+                        Leyenda = row["estado"].ToString()
+                    };
+                    lista.Add(auto);
+                }
+                
+            }
         }
-        catch (System.Exception)
+        else
         {
-            return BadRequest("si la contraseño con coincide");
+            var auto = new
+            {
+                Leyenda = "Error... No se pudo procesar la operaciòn..."
+            };
+            lista.Add(auto);
         }
-    }
-
-    [HttpGet("renovar")]
-    public IActionResult RenovarToken(RenovarTokenRequest request)
-    {
-        try
-        {
-            LoginResponse response = _authService.RenovarToken(request.token);
-            return Ok(response);
-        }
-        catch (System.Exception)
-        {
-            return BadRequest("si la contraseño con coincide");
-        }
+        return Ok(lista);
     }
 
 }
