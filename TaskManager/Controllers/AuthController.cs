@@ -2,8 +2,11 @@ using CodeGeneral;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using System.Data;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Xml.Linq;
 using TaskManager.Contracts.Auth;
+using TaskManager.Models;
 using TaskManager.Services.Auth;
 
 namespace TaskManager.Controllers;
@@ -30,7 +33,7 @@ public class AuthController : ControllerBase
             {
                 var objResponse = new
                 {
-                    Leyenda = row["estado"].ToString()
+                    Leyenda = row["leyenda"].ToString()
                 };
                 lista.Add(objResponse);
             }
@@ -59,13 +62,15 @@ public class AuthController : ControllerBase
         {
             foreach (DataRow row in dsResultados.Tables[0].Rows)
             {
-                if (row["estado"].ToString() == "Contraseña valida")
+                if (row["leyenda"].ToString() == "Contraseña valida")
                 {
                     var objResponse = new
                     {
-                        Nombre = row["nombres"].ToString(),
-                        Correo = row["correo"].ToString(),
-                        Leyenda = row["estado"].ToString()
+                        id = row["idusuario"].ToString(),
+                        nombre = row["nombres"].ToString(),
+                        correo = row["correo"].ToString(),
+                        tasks = JsonObject.Parse(row["tareas"].ToString()),
+                        Leyenda = row["leyenda"].ToString()
                     };
                     lista.Add(objResponse);
                 }
@@ -73,7 +78,7 @@ public class AuthController : ControllerBase
                 {
                     var objResponse = new
                     {
-                        Leyenda = row["estado"].ToString()
+                        Leyenda = row["leyenda"].ToString()
                     };
                     lista.Add(objResponse);
                 }
