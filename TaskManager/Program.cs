@@ -24,6 +24,9 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateAudience = false,
         };
     });
+builder.Services.AddCors();
+    
+
 
 
 
@@ -37,6 +40,8 @@ var app = builder.Build();
     }
 
     app.UseHttpsRedirection();
+
+    app.UseCors(options => options.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 
     app.UseAuthentication();
 

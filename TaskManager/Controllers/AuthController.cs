@@ -13,7 +13,7 @@ namespace TaskManager.Controllers;
 public class AuthController : ControllerBase
 {
 
-    private readonly IAuthService _authService;
+    //private readonly IAuthService _authService;
 
     [Route("[action]")]
     [HttpPost]
@@ -28,20 +28,20 @@ public class AuthController : ControllerBase
         {
             foreach (DataRow row in dsResultados.Tables[0].Rows)
             {
-                var auto = new
+                var objResponse = new
                 {
                     Leyenda = row["estado"].ToString()
                 };
-                lista.Add(auto);
+                lista.Add(objResponse);
             }
         }
         else
         {
-            var auto = new
+            var objResponse = new
             {
                 Leyenda = "Error... No se pudo procesar la operaciòn..."
             };
-            lista.Add(auto);
+            lista.Add(objResponse);
         }
         return Ok(lista);
     }
@@ -61,32 +61,32 @@ public class AuthController : ControllerBase
             {
                 if (row["estado"].ToString() == "Contraseña valida")
                 {
-                    var auto = new
+                    var objResponse = new
                     {
                         Nombre = row["nombres"].ToString(),
                         Correo = row["correo"].ToString(),
                         Leyenda = row["estado"].ToString()
                     };
-                    lista.Add(auto);
+                    lista.Add(objResponse);
                 }
                 else
                 {
-                    var auto = new
+                    var objResponse = new
                     {
                         Leyenda = row["estado"].ToString()
                     };
-                    lista.Add(auto);
+                    lista.Add(objResponse);
                 }
                 
             }
         }
         else
         {
-            var auto = new
+            var objResponse = new
             {
                 Leyenda = "Error... No se pudo procesar la operaciòn..."
             };
-            lista.Add(auto);
+            lista.Add(objResponse);
         }
         return Ok(lista);
     }
