@@ -16,10 +16,8 @@ namespace TaskManager.Controllers;
 public class AuthController : ControllerBase
 {
 
-    //private readonly IAuthService _authService;
-
     [Route("[action]")]
-    [HttpPost]
+    [HttpPut]
     public async Task<ActionResult<List<CreateUserRequest>>> crearUsuario([BindRequired]string nombre, [BindRequired] string correo, [BindRequired] string contraseña)
     {
         var cadCon = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build().GetSection("ConnectionStrings")["conn_bd"];
