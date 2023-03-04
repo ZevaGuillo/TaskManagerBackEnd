@@ -90,4 +90,68 @@ public class TaskController : ControllerBase
         }
         return Ok(lista);
     }
+    [Route("[action]")]
+    [HttpDelete]
+    public async Task<ActionResult<List<CreateTaskRequest>>> eliminar([BindRequired] string id)
+    {
+        var cadCon = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build().GetSection("ConnectionStrings")["conn_bd"];
+        XDocument xmlParam = XDocument.Parse("<TaskModel>" +
+            "<id>" + id + "</id>" +
+            "</TaskModel>");
+        Console.WriteLine(xmlParam.ToString());
+        DataSet dsResultados = await DBXmlMethods.EjecutaBase("TaskManager", cadCon, "eliminar", xmlParam);
+        List<object> lista = new List<object>();
+        if (dsResultados.Tables.Count > 0 && dsResultados.Tables[0].Rows.Count > 0)
+        {
+            foreach (DataRow row in dsResultados.Tables[0].Rows)
+            {
+                var objResponse = new
+                {
+                    Leyenda = row["leyenda"].ToString()
+                };
+                lista.Add(objResponse);
+            }
+        }
+        else
+        {
+            var objResponse = new
+            {
+                Leyenda = "Error... No se pudo procesar la operaciòn..."
+            };
+            lista.Add(objResponse);
+        }
+        return Ok(lista);
+    }
+    [Route("[action]")]
+    [HttpGet]
+    public async Task<ActionResult<List<CreateTaskRequest>>> cambiarEstado([BindRequired] string id)
+    {
+        var cadCon = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build().GetSection("ConnectionStrings")["conn_bd"];
+        XDocument xmlParam = XDocument.Parse("<TaskModel>" +
+            "<id>" + id + "</id>"+
+            "</TaskModel>");
+        Console.WriteLine(xmlParam.ToString());
+        DataSet dsResultados = await DBXmlMethods.EjecutaBase("TaskManager", cadCon, "cambiarEstado", xmlParam);
+        List<object> lista = new List<object>();
+        if (dsResultados.Tables.Count > 0 && dsResultados.Tables[0].Rows.Count > 0)
+        {
+            foreach (DataRow row in dsResultados.Tables[0].Rows)
+            {
+                var objResponse = new
+                {
+                    Leyenda = row["leyenda"].ToString()
+                };
+                lista.Add(objResponse);
+            }
+        }
+        else
+        {
+            var objResponse = new
+            {
+                Leyenda = "Error... No se pudo procesar la operaciòn..."
+            };
+            lista.Add(objResponse);
+        }
+        return Ok(lista);
+    }
 }
