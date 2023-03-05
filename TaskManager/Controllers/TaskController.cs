@@ -16,7 +16,7 @@ namespace TaskManager.Controllers;
 public class TaskController : ControllerBase
 {
     [Route("[action]")]
-    [HttpPut]
+    [HttpPost]
     public async Task<ActionResult<List<CreateTaskRequest>>> crear([BindRequired] string id_usuario, [BindRequired] string titulo, [BindRequired] string descripcion, [BindRequired] DateTime fecha_fin, [BindRequired] DateTime fecha_inicio, Boolean estado)
     {
         var cadCon = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build().GetSection("ConnectionStrings")["conn_bd"];
@@ -54,7 +54,7 @@ public class TaskController : ControllerBase
     }
 
     [Route("[action]")]
-    [HttpPost]
+    [HttpPut]
     public async Task<ActionResult<List<CreateTaskRequest>>> editar([BindRequired] string id, [BindRequired] string titulo, [BindRequired] string descripcion, [BindRequired] DateTime fecha_fin, [BindRequired] DateTime fecha_inicio, Boolean estado)
     {
         var cadCon = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build().GetSection("ConnectionStrings")["conn_bd"];
@@ -123,7 +123,7 @@ public class TaskController : ControllerBase
         return Ok(lista);
     }
     [Route("[action]")]
-    [HttpGet]
+    [HttpPut]
     public async Task<ActionResult<List<CreateTaskRequest>>> cambiarEstado([BindRequired] string id)
     {
         var cadCon = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build().GetSection("ConnectionStrings")["conn_bd"];
