@@ -5,6 +5,7 @@ using System.Text;
 using Microsoft.IdentityModel.Tokens;
 using TaskManager.Contracts.Auth;
 using TaskManager.Models;
+using TaskManager.Services.Databse;
 
 namespace TaskManager.Services.Auth;
 public class AuthService : IAuthService
@@ -23,28 +24,31 @@ public class AuthService : IAuthService
         // return BadRequest("User not found.")
 
         // si la contraseño con coincide
-        if (!BCrypt.Net.BCrypt.Verify(data.contraseña, user.contraseña))
-        {
-            throw new Exception();
-        }
+        // if (!BCrypt.Net.BCrypt.Verify(data.contraseña, user.contraseña))
+        // {
+        //     throw new Exception();
+        // }
 
         string token = GenerateToken(user.Uid);
         user.token = token;
+
+        
 
         return new LoginResponse(user.Uid, user.nombre, user.token);
     }
 
-    public User Register(CreateUserRequest newUser)
+    public async Task<User> Register(CreateUserRequest newUser)
     {
 
-        string contrasenaCifrada = BCrypt.Net.BCrypt.HashPassword(newUser.contraseña);
+        // string contrasenaCifrada = BCrypt.Net.BCrypt.HashPassword(newUser.contraseña);
 
         //TODO: genera JWT
-        user = new User(newUser.nombre, newUser.correo, contrasenaCifrada);
+        user = new User(newUser.nombre, newUser.correo, newUser.contraseña);
         string token = GenerateToken(user.Uid);
         user.token = token;
 
         // Guardar usuario DB
+        await DatabaseService.crearUsuario(user.nombre, user.correo, user.contraseña);
 
         return user;
     }
