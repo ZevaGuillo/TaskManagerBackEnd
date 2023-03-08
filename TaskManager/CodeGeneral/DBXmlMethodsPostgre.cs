@@ -26,29 +26,32 @@ namespace CodeGeneral
             }
         }
 
-        public static async Task<DataSet> EjecutaBase(string funcion, string conexion, string transaccion, XDocument dataXML)
+        public static async Task<NpgsqlDataReader> EjecutarProcedure(string procedure, XDocument dataXML)
         {
-            using var con = new NpgsqlConnection(conexion);
+            string connectionString = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build().GetSection("ConnectionStrings")["conn_bd"];
             try
             {
-                await con.OpenAsync().ConfigureAwait(false);
+                // Crear una conexión a la base de datos
+                NpgsqlConnection connection = new NpgsqlConnection(connectionString);
 
-                using var cmd = new NpgsqlCommand($"SELECT {funcion}('{dataXML.ToString()}', '{transaccion}')", con);
-                cmd.CommandType = CommandType.Text;
+                await connection.OpenAsync().ConfigureAwait(false);
 
-                // cmd.Parameters.AddWithValue("@itransaccion", NpgsqlDbType.Varchar, transaccion);
-                // cmd.Parameters.AddWithValue("@ixml", NpgsqlDbType.Xml, dataXML.ToString());
+                // Crear un comando que ejecuta el procedimiento almacenado
+                NpgsqlCommand command = new NpgsqlCommand($"SELECT * FROM {procedure}('{dataXML.ToString()}')", connection);
 
-                using var adapter = new NpgsqlDataAdapter(cmd);
-                var dataSet = new DataSet();
-                adapter.Fill(dataSet);
+                command.CommandType = CommandType.Text;
+                command.CommandTimeout = 120;
 
-                return dataSet;
+                // Ejecutar el procedimiento almacenado y obtener los datos
+                NpgsqlDataReader reader = command.ExecuteReader();
+                
+                return reader;
+
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error al ejecutar la función '{funcion}': {ex.Message}");
-                throw;
+                Console.WriteLine($"Error: {ex.Message}");
+                throw new Exception($"Error de PostgreSQL: {ex.Message}");
             }
         }
     }

@@ -1,12 +1,6 @@
-using CodeGeneral;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
-using System.Data;
-using System.Text.Json;
-using System.Text.Json.Nodes;
-using System.Xml.Linq;
+using System.Net;
 using TaskManager.Contracts.Auth;
-using TaskManager.Models;
 using TaskManager.Services.Auth;
 
 namespace TaskManager.Controllers;
@@ -16,7 +10,7 @@ namespace TaskManager.Controllers;
 public class AuthController : ControllerBase
 {
 
-     private readonly IAuthService _authService;
+    private readonly IAuthService _authService;
 
     public AuthController(IAuthService authService)
     {
@@ -28,56 +22,45 @@ public class AuthController : ControllerBase
     public async Task<ActionResult<List<CreateUserRequest>>> crearUsuario(CreateUserRequest request)
     {
 
-        var lista = await _authService.Register(request);
+        try
+        {
+            var lista = await _authService.Register(request);
+            return Ok(lista);
 
-        return Ok(lista);
+        }
+        catch (System.Exception ex)
+        {
+
+            return BadRequest(new ProblemDetails
+            {
+                Status = (int)HttpStatusCode.BadRequest,
+                Title = "Error en la petición",
+                Detail = ex.Message
+            });
+        }
+
     }
 
     [Route("[action]")]
     [HttpPost]
-    public async Task<ActionResult<List<LoginRequest>>> login([BindRequired] string correo, [BindRequired] string contraseña)
+    public async Task<ActionResult<List<LoginRequest>>> login(LoginRequest request)
     {
-        var cadCon = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build().GetSection("ConnectionStrings")["conn_bd"];
-        XDocument xmlParam = XDocument.Parse("<LoginRequest><correo>" + correo + "</correo><contraseña>" + contraseña + "</contraseña></LoginRequest>");
-        Console.WriteLine(xmlParam.ToString());
-        DataSet dsResultados = await DBXmlMethods.EjecutaBase("Auth", cadCon, "login", xmlParam);
-        List<object> lista = new List<object>();
-        if (dsResultados.Tables.Count > 0 && dsResultados.Tables[0].Rows.Count > 0)
+        try
         {
-            foreach (DataRow row in dsResultados.Tables[0].Rows)
-            {
-                if (row["leyenda"].ToString() == "Contraseña valida")
-                {
-                    var objResponse = new
-                    {
-                        id = row["idusuario"].ToString(),
-                        nombre = row["nombres"].ToString(),
-                        correo = row["correo"].ToString(),
-                        tasks = JsonObject.Parse(row["tareas"].ToString()),
-                        Leyenda = row["leyenda"].ToString()
-                    };
-                    lista.Add(objResponse);
-                }
-                else
-                {
-                    var objResponse = new
-                    {
-                        Leyenda = row["leyenda"].ToString()
-                    };
-                    lista.Add(objResponse);
-                }
-                
-            }
+            var lista = await _authService.Login(request);
+            return Ok(lista);
         }
-        else
+        catch (System.Exception ex)
         {
-            var objResponse = new
+
+            return BadRequest(new ProblemDetails
             {
-                Leyenda = "Error... No se pudo procesar la operaciòn..."
-            };
-            lista.Add(objResponse);
+                Status = (int)HttpStatusCode.BadRequest,
+                Title = "Error en la petición",
+                Detail = ex.Message
+            });
         }
-        return Ok(lista);
+
     }
 
 }

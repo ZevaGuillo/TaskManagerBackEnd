@@ -1,38 +1,60 @@
 using System.Data;
+using System.Text.Json.Nodes;
 using System.Xml.Linq;
 using CodeGeneral;
+using Npgsql;
+using TaskManager.Models;
 
 namespace TaskManager.Services.Databse;
 
-public class DatabaseService 
+public class DatabaseService
 {
-    public static async Task<List<Object>> crearUsuario(string nombre, string correo, string contrasena)
+    public static async Task<User> crearUsuario(string nombre, string correo, string contrasena)
     {
-        
-        var cadCon = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build().GetSection("ConnectionStrings")["conn_bd"];
-        XDocument xmlParam = XDocument.Parse("<CreateUserRequest><nombre>"+nombre+"</nombre><correo>"+correo+"</correo><contrasena>"+contrasena+"</contrasena></CreateUserRequest>");
+        User user = new User();
+
+        XDocument xmlParam = XDocument.Parse("<CreateUserRequest><nombre>" + nombre + "</nombre><correo>" + correo + "</correo><contrasena>" + contrasena + "</contrasena></CreateUserRequest>");
         Console.WriteLine(xmlParam.ToString());
-        DataSet dsResultados = await DBXmlMethodsP.EjecutaBase("auth", cadCon, "crear", xmlParam);
+
+        NpgsqlDataReader reader = await DBXmlMethodsP.EjecutarProcedure("crear_usuario", xmlParam);
         List<object> lista = new List<object>();
-        if (dsResultados.Tables.Count > 0 && dsResultados.Tables[0].Rows.Count > 0)
         {
-            foreach (DataRow row in dsResultados.Tables[0].Rows)
+            // Iterar sobre los registros obtenidos e imprimirlos en la consola
+            while (reader.Read())
             {
-                var objResponse = new
-                {
-                    Leyenda = "pribando"
-                };
-                lista.Add(objResponse);
+                user.Uid = reader.GetGuid(0);
+                user.nombre = reader.GetString(1);
+                user.correo = reader.GetString(2);
+                // Console.WriteLine($" Id: {id.ToString()} Nombre: {nombred} Correo: {correod}");
             }
         }
-        else
-        {
-            var objResponse = new
+
+        return user;
+    }
+
+    public static async Task<User> Login(string correo, string contrasena)
+    {
+        User user = new User();
+
+        XDocument xmlParam = XDocument.Parse("<LoginRequest><correo>" + correo + "</correo><contrasena>" + contrasena + "</contrasena></LoginRequest>");
+        Console.WriteLine(xmlParam.ToString());
+
+            NpgsqlDataReader reader = await DBXmlMethodsP.EjecutarProcedure("login", xmlParam);
+
+            while (reader.Read())
             {
-                Leyenda = "Error... No se pudo procesar la operaciòn..."
-            };
-            lista.Add(objResponse);
-        }
-        return lista;
+                user.Uid = reader.GetGuid(0);
+                user.nombre = reader.GetString(1);
+                user.correo = reader.GetString(2);
+
+                //TODO: asignar tareas
+                string tareas = reader.GetString(3);
+
+                // Console.WriteLine($" Id: {id.ToString()} Nombre: {nombre} Correo: {correoe} Tareas: {tareas}");
+                
+            }
+
+
+        return user;
     }
 }
