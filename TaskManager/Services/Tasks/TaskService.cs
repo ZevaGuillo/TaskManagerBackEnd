@@ -11,7 +11,7 @@ public class TaskService : ITaskService
     public async Task<Object> CreateTask(CreateTaskRequest task)
     {
 
-        var response = await DatabaseService.CrearTask(task.id_usuario, task.Titulo, task.Descripcion, task.FechaFin, task.FechaInicio, task.Estado);
+        var response = await DatabaseService.CrearTask(task.id_usuario, task.Titulo, task.Descripcion, task.FechaFin, task.FechaInicio);
 
         return response;
     }

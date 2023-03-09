@@ -56,7 +56,7 @@ public class DatabaseService
         return user;
     }
 
-    public static async Task<Object> CrearTask(string id_usuario, string titulo, string descripcion, DateTime fecha_fin, DateTime fecha_inicio, Boolean estado)
+    public static async Task<Object> CrearTask(string id_usuario, string titulo, string descripcion, DateTime fecha_fin, DateTime fecha_inicio)
     {
         var response = new Object();
 
@@ -66,7 +66,6 @@ public class DatabaseService
                     "<descripcion>" + descripcion + "</descripcion>" +
                     "<fecha_fin>" + fecha_fin.ToString("yyyy-MM-ddTHH:mm:ssZ") + "</fecha_fin>" +
                     "<fecha_inicio>" + fecha_inicio.ToString("yyyy-MM-ddTHH:mm:ssZ") + "</fecha_inicio>" +
-                    "<estado>" + estado + "</estado>" +
                     "</TaskModel>");
 
         Console.WriteLine(xmlParam.ToString());
