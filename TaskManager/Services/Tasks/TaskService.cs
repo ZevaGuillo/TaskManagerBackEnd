@@ -16,6 +16,13 @@ public class TaskService : ITaskService
         return response;
     }
 
+    public async Task<object> EditTask(UpdateTaskRequest task)
+    {
+        var response = await DatabaseService.EditarTask(task.Id, task.Titulo, task.Descripcion, task.FechaFin, task.FechaInicio, task.Estado);
+
+        return response;
+    }
+
     public Dictionary<Guid, TaskModel> GetTasks()
     {
         return _tasks;

@@ -1,6 +1,3 @@
-using System.Data;
-using System.Globalization;
-using System.Text.Json.Nodes;
 using System.Xml.Linq;
 using CodeGeneral;
 using Npgsql;
@@ -90,6 +87,39 @@ public class DatabaseService
 
         }
 
+        return response;
+    }
+
+        public static async Task<Object> EditarTask(string id, string titulo, string descripcion, DateTime fecha_fin, DateTime fecha_inicio, Boolean estado)
+    {
+        var response = new Object();
+
+        XDocument xmlParam = XDocument.Parse("<TaskModel>" +
+            "<id>" + id + "</id>" +
+            "<titulo>" + titulo + "</titulo>" +
+            "<descripcion>" + descripcion + "</descripcion>" +
+            "<fecha_fin>" + fecha_fin + "</fecha_fin>" +
+            "<fecha_inicio>" + fecha_inicio + "</fecha_inicio>" +
+            "<estado>" + estado + "</estado>" +
+            "</TaskModel>");
+
+        Console.WriteLine(xmlParam.ToString());
+
+        NpgsqlDataReader reader = await DBXmlMethodsP.EjecutarProcedure("editar_tarea", xmlParam);
+
+        while (reader.Read())
+        {
+            var tarea_id = reader.GetGuid(0);
+            var mensaje = reader.GetString(1);
+
+            response = new {
+                tarea_id = tarea_id,
+                mensaje = mensaje
+            };
+
+            Console.WriteLine(mensaje);
+
+        }
 
         return response;
     }

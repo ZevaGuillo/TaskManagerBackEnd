@@ -48,40 +48,24 @@ public class TaskController : ControllerBase
 
     [Route("[action]")]
     [HttpPut]
-    public async Task<ActionResult<List<CreateTaskRequest>>> editar([BindRequired] string id, [BindRequired] string titulo, [BindRequired] string descripcion, [BindRequired] DateTime fecha_fin, [BindRequired] DateTime fecha_inicio, Boolean estado)
+    public async Task<ActionResult> editar(UpdateTaskRequest request)
     {
-        var cadCon = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build().GetSection("ConnectionStrings")["conn_bd"];
-        XDocument xmlParam = XDocument.Parse("<TaskModel>" +
-            "<id>" + id + "</id>" +
-            "<titulo>" + titulo + "</titulo>" +
-            "<descripcion>" + descripcion + "</descripcion>" +
-            "<fecha_fin>" + fecha_fin + "</fecha_fin>" +
-            "<fecha_inicio>" + fecha_inicio + "</fecha_inicio>" +
-            "<estado>" + estado + "</estado>" +
-            "</TaskModel>");
-        Console.WriteLine(xmlParam.ToString());
-        DataSet dsResultados = await DBXmlMethods.EjecutaBase("TaskManager", cadCon, "editar", xmlParam);
-        List<object> lista = new List<object>();
-        if (dsResultados.Tables.Count > 0 && dsResultados.Tables[0].Rows.Count > 0)
+        try
         {
-            foreach (DataRow row in dsResultados.Tables[0].Rows)
-            {
-                var objResponse = new
-                {
-                    Leyenda = row["leyenda"].ToString()
-                };
-                lista.Add(objResponse);
-            }
+            var mensaje = await _taskService.EditTask(request);
+
+            return Ok( new { Status = (int)HttpStatusCode.OK, Result = mensaje } );
         }
-        else
+        catch (System.Exception ex)
         {
-            var objResponse = new
+
+            return BadRequest(new ProblemDetails
             {
-                Leyenda = "Error... No se pudo procesar la operaci�n..."
-            };
-            lista.Add(objResponse);
+                Status = (int)HttpStatusCode.BadRequest,
+                Title = "Error en la petición",
+                Detail = ex.Message
+            });
         }
-        return Ok(lista);
     }
     [Route("[action]")]
     [HttpDelete]

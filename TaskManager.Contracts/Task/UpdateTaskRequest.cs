@@ -1,9 +1,10 @@
 namespace TaskManager.Contracts.Task;
 
 public record UpdateTaskRequest(
-    string titulo,
-    string descripcion,
-    DateTime fechaFin,
-    DateTime fechaInicio,
-    bool estado
+    string Id,
+    string Titulo,
+    string Descripcion,
+    DateTime FechaFin,
+    DateTime FechaInicio,
+    bool Estado
 );
