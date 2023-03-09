@@ -4,7 +4,7 @@ public record UpdateTaskRequest(
     string Id,
     string Titulo,
     string Descripcion,
-    DateTime FechaFin,
-    DateTime FechaInicio,
+    string FechaFin,
+    string FechaInicio,
     bool Estado
 );

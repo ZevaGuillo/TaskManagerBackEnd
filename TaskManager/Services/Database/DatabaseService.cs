@@ -90,7 +90,7 @@ public class DatabaseService
         return response;
     }
 
-    public static async Task<Object> EditarTask(string id, string titulo, string descripcion, DateTime fecha_fin, DateTime fecha_inicio, Boolean estado)
+    public static async Task<Object> EditarTask(string id, string titulo, string descripcion, string fecha_fin, string fecha_inicio, Boolean estado)
     {
         var response = new Object();
 
