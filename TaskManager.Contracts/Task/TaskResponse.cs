@@ -1,7 +1,7 @@
 namespace TaskManager.Contracts.Task;
 
 public record TaskResponse(
-    Guid id,
+    string id,
     string titulo,
     string descripcion,
     DateTime fechaFin,

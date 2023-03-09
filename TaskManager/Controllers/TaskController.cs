@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using System.Data;
+using System.Net;
 using System.Xml.Linq;
 using TaskManager.Contracts.Task;
 using TaskManager.Models;
@@ -15,42 +16,34 @@ namespace TaskManager.Controllers;
 [Route("[controller]")]
 public class TaskController : ControllerBase
 {
+
+    private readonly ITaskService _taskService;
+
+    public TaskController(ITaskService taskService)
+    {
+        _taskService = taskService;
+    }
+
     [Route("[action]")]
     [HttpPost]
-    public async Task<ActionResult<List<CreateTaskRequest>>> crear([BindRequired] string id_usuario, [BindRequired] string titulo, [BindRequired] string descripcion, [BindRequired] DateTime fecha_fin, [BindRequired] DateTime fecha_inicio, Boolean estado)
+    public async Task<ActionResult> crear(CreateTaskRequest request)
     {
-        var cadCon = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build().GetSection("ConnectionStrings")["conn_bd"];
-        XDocument xmlParam = XDocument.Parse("<TaskModel>" +
-            "<id_usuario>"+id_usuario+"</id_usuario>" +
-            "<titulo>"+ titulo + "</titulo>" +
-            "<descripcion>" + descripcion + "</descripcion>" +
-            "<fecha_fin>" + fecha_fin  + "</fecha_fin>" +
-            "<fecha_inicio>" + fecha_inicio + "</fecha_inicio>" +
-            "<estado>" + estado + "</estado>" +
-            "</TaskModel>");
-        Console.WriteLine(xmlParam.ToString());
-        DataSet dsResultados = await DBXmlMethods.EjecutaBase("TaskManager", cadCon, "crear", xmlParam);
-        List<object> lista = new List<object>();
-        if (dsResultados.Tables.Count > 0 && dsResultados.Tables[0].Rows.Count > 0)
+        try
         {
-            foreach (DataRow row in dsResultados.Tables[0].Rows)
-            {
-                var objResponse = new
-                {
-                    Leyenda = row["leyenda"].ToString()
-                };
-                lista.Add(objResponse);
-            }
+            string mensaje = await _taskService.CreateTask(request);
+
+            return StatusCode(201, new { Status = (int)HttpStatusCode.Created, Mensaje = mensaje });
         }
-        else
+        catch (System.Exception ex)
         {
-            var objResponse = new
+
+            return BadRequest(new ProblemDetails
             {
-                Leyenda = "Error... No se pudo procesar la operaciòn..."
-            };
-            lista.Add(objResponse);
+                Status = (int)HttpStatusCode.BadRequest,
+                Title = "Error en la peticiÃ³n",
+                Detail = ex.Message
+            });
         }
-        return Ok(lista);
     }
 
     [Route("[action]")]
@@ -84,7 +77,7 @@ public class TaskController : ControllerBase
         {
             var objResponse = new
             {
-                Leyenda = "Error... No se pudo procesar la operaciòn..."
+                Leyenda = "Error... No se pudo procesar la operaciï¿½n..."
             };
             lista.Add(objResponse);
         }
@@ -116,7 +109,7 @@ public class TaskController : ControllerBase
         {
             var objResponse = new
             {
-                Leyenda = "Error... No se pudo procesar la operaciòn..."
+                Leyenda = "Error... No se pudo procesar la operaciï¿½n..."
             };
             lista.Add(objResponse);
         }
@@ -128,7 +121,7 @@ public class TaskController : ControllerBase
     {
         var cadCon = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build().GetSection("ConnectionStrings")["conn_bd"];
         XDocument xmlParam = XDocument.Parse("<TaskModel>" +
-            "<id>" + id + "</id>"+
+            "<id>" + id + "</id>" +
             "</TaskModel>");
         Console.WriteLine(xmlParam.ToString());
         DataSet dsResultados = await DBXmlMethods.EjecutaBase("TaskManager", cadCon, "cambiarEstado", xmlParam);
@@ -148,7 +141,7 @@ public class TaskController : ControllerBase
         {
             var objResponse = new
             {
-                Leyenda = "Error... No se pudo procesar la operaciòn..."
+                Leyenda = "Error... No se pudo procesar la operaciï¿½n..."
             };
             lista.Add(objResponse);
         }

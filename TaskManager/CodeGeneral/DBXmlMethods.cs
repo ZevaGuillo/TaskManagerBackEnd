@@ -21,7 +21,7 @@ namespace CodeGeneral
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
-                return null;
+                throw;
             }
         }
 

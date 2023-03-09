@@ -1,4 +1,5 @@
 using System.Data;
+using System.Globalization;
 using System.Text.Json.Nodes;
 using System.Xml.Linq;
 using CodeGeneral;
@@ -39,22 +40,50 @@ public class DatabaseService
         XDocument xmlParam = XDocument.Parse("<LoginRequest><correo>" + correo + "</correo><contrasena>" + contrasena + "</contrasena></LoginRequest>");
         Console.WriteLine(xmlParam.ToString());
 
-            NpgsqlDataReader reader = await DBXmlMethodsP.EjecutarProcedure("login", xmlParam);
+        NpgsqlDataReader reader = await DBXmlMethodsP.EjecutarProcedure("login", xmlParam);
 
-            while (reader.Read())
-            {
-                user.Uid = reader.GetGuid(0);
-                user.nombre = reader.GetString(1);
-                user.correo = reader.GetString(2);
+        while (reader.Read())
+        {
+            user.Uid = reader.GetGuid(0);
+            user.nombre = reader.GetString(1);
+            user.correo = reader.GetString(2);
 
-                //TODO: asignar tareas
-                string tareas = reader.GetString(3);
+            //TODO: asignar tareas
+            string tareas = reader.GetString(3);
 
-                // Console.WriteLine($" Id: {id.ToString()} Nombre: {nombre} Correo: {correoe} Tareas: {tareas}");
-                
-            }
+             Console.WriteLine($"  Tareas: {tareas}");
+
+        }
 
 
         return user;
+    }
+
+    public static async Task<string> CrearTask(string id_usuario, string titulo, string descripcion, DateTime fecha_fin, DateTime fecha_inicio, Boolean estado)
+    {
+        string mensaje = String.Empty;
+
+        XDocument xmlParam = XDocument.Parse("<TaskModel>" +
+                    "<id_usuario>" + id_usuario + "</id_usuario>" +
+                    "<titulo>" + titulo + "</titulo>" +
+                    "<descripcion>" + descripcion + "</descripcion>" +
+                    "<fecha_fin>" + fecha_fin.ToString("yyyy-MM-ddTHH:mm:ssZ") + "</fecha_fin>" +
+                    "<fecha_inicio>" + fecha_inicio.ToString("yyyy-MM-ddTHH:mm:ssZ") + "</fecha_inicio>" +
+                    "<estado>" + estado + "</estado>" +
+                    "</TaskModel>");
+
+        Console.WriteLine(xmlParam.ToString());
+
+        NpgsqlDataReader reader = await DBXmlMethodsP.EjecutarProcedure("crearTarea", xmlParam);
+
+        while (reader.Read())
+        {
+            mensaje = reader.GetString(0);
+            Console.WriteLine(mensaje);
+
+        }
+
+
+        return mensaje;
     }
 }
