@@ -23,6 +23,13 @@ public class TaskService : ITaskService
         return response;
     }
 
+    public async Task<object> EliminarTask(string id)
+    {
+        var response = await DatabaseService.EliminarTask(id);
+
+        return response;
+    }
+
     public Dictionary<Guid, TaskModel> GetTasks()
     {
         return _tasks;

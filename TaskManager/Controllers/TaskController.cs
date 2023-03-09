@@ -1,12 +1,7 @@
-using CodeGeneral;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
-using System.Data;
 using System.Net;
-using System.Xml.Linq;
 using TaskManager.Contracts.Task;
-using TaskManager.Models;
 using TaskManager.Services.Tasks;
 
 namespace TaskManager.Controllers;
@@ -67,68 +62,27 @@ public class TaskController : ControllerBase
             });
         }
     }
+
     [Route("[action]")]
     [HttpDelete]
     public async Task<ActionResult<List<CreateTaskRequest>>> eliminar([BindRequired] string id)
     {
-        var cadCon = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build().GetSection("ConnectionStrings")["conn_bd"];
-        XDocument xmlParam = XDocument.Parse("<TaskModel>" +
-            "<id>" + id + "</id>" +
-            "</TaskModel>");
-        Console.WriteLine(xmlParam.ToString());
-        DataSet dsResultados = await DBXmlMethods.EjecutaBase("TaskManager", cadCon, "eliminar", xmlParam);
-        List<object> lista = new List<object>();
-        if (dsResultados.Tables.Count > 0 && dsResultados.Tables[0].Rows.Count > 0)
+        try
         {
-            foreach (DataRow row in dsResultados.Tables[0].Rows)
-            {
-                var objResponse = new
-                {
-                    Leyenda = row["leyenda"].ToString()
-                };
-                lista.Add(objResponse);
-            }
+            var mensaje = await _taskService.EliminarTask(id);
+
+            return Ok( new { Status = (int)HttpStatusCode.OK, Result = mensaje } );
         }
-        else
+        catch (System.Exception ex)
         {
-            var objResponse = new
+
+            return BadRequest(new ProblemDetails
             {
-                Leyenda = "Error... No se pudo procesar la operaci�n..."
-            };
-            lista.Add(objResponse);
+                Status = (int)HttpStatusCode.BadRequest,
+                Title = "Error en la petición",
+                Detail = ex.Message
+            });
         }
-        return Ok(lista);
     }
-    [Route("[action]")]
-    [HttpPut]
-    public async Task<ActionResult<List<CreateTaskRequest>>> cambiarEstado([BindRequired] string id)
-    {
-        var cadCon = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build().GetSection("ConnectionStrings")["conn_bd"];
-        XDocument xmlParam = XDocument.Parse("<TaskModel>" +
-            "<id>" + id + "</id>" +
-            "</TaskModel>");
-        Console.WriteLine(xmlParam.ToString());
-        DataSet dsResultados = await DBXmlMethods.EjecutaBase("TaskManager", cadCon, "cambiarEstado", xmlParam);
-        List<object> lista = new List<object>();
-        if (dsResultados.Tables.Count > 0 && dsResultados.Tables[0].Rows.Count > 0)
-        {
-            foreach (DataRow row in dsResultados.Tables[0].Rows)
-            {
-                var objResponse = new
-                {
-                    Leyenda = row["leyenda"].ToString()
-                };
-                lista.Add(objResponse);
-            }
-        }
-        else
-        {
-            var objResponse = new
-            {
-                Leyenda = "Error... No se pudo procesar la operaci�n..."
-            };
-            lista.Add(objResponse);
-        }
-        return Ok(lista);
-    }
+    
 }
