@@ -19,7 +19,7 @@ public class AuthController : ControllerBase
 
     [Route("[action]")]
     [HttpPost]
-    public async Task<ActionResult<List<CreateUserRequest>>> crearUsuario(CreateUserRequest request)
+    public async Task<ActionResult<List<CreateUserRequest>>> crear(CreateUserRequest request)
     {
 
         try

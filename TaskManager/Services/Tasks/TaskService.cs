@@ -30,8 +30,10 @@ public class TaskService : ITaskService
         return response;
     }
 
-    public Dictionary<Guid, TaskModel> GetTasks()
+    public async Task<object> GetTasks(string user_id)
     {
-        return _tasks;
+        var response = await DatabaseService.GetTask(user_id);
+
+        return response;
     }
 }

@@ -154,4 +154,36 @@ public class DatabaseService
 
         return response;
     }
+
+        public static async Task<List<Object>> GetTask(string user_id)
+    {
+        var response = new List<Object>();
+
+        XDocument xmlParam = XDocument.Parse("<TaskModel>" +
+            "<id_usuario>" + user_id + "</id_usuario>" +
+            "</TaskModel>");
+
+        Console.WriteLine(xmlParam.ToString());
+
+        NpgsqlDataReader reader = await DBXmlMethodsP.EjecutarProcedure("get_user_tasks", xmlParam);
+
+        while (reader.Read())
+        {
+            var tarea_id = reader.GetGuid(0);
+
+            response.Add(new
+            {
+                id= tarea_id,
+                titulo= reader.GetString(1),
+                descripcion = reader.GetString(2),
+                fechaInicio = reader.GetString(3),
+                fechaFin = reader.GetString(4),
+                estado = reader.GetBoolean(5),
+            });
+
+        }
+
+        return response;
+    }
+
 }

@@ -8,5 +8,5 @@ public interface ITaskService
     Task<Object> CreateTask(CreateTaskRequest task);
     Task<Object> EditTask(UpdateTaskRequest task);
     Task<Object> EliminarTask(string id);
-    Dictionary<Guid, TaskModel> GetTasks();
+    Task<Object> GetTasks(string user_id);
 }

@@ -65,11 +65,33 @@ public class TaskController : ControllerBase
 
     [Route("[action]")]
     [HttpDelete]
-    public async Task<ActionResult<List<CreateTaskRequest>>> eliminar([BindRequired] string id)
+    public async Task<ActionResult> eliminar([BindRequired] string id)
     {
         try
         {
             var mensaje = await _taskService.EliminarTask(id);
+
+            return Ok( new { Status = (int)HttpStatusCode.OK, Result = mensaje } );
+        }
+        catch (System.Exception ex)
+        {
+
+            return BadRequest(new ProblemDetails
+            {
+                Status = (int)HttpStatusCode.BadRequest,
+                Title = "Error en la petición",
+                Detail = ex.Message
+            });
+        }
+    }
+
+    [Route("[action]")]
+    [HttpGet]
+    public async Task<ActionResult> get([BindRequired] string user_id)
+    {
+        try
+        {
+            var mensaje = await _taskService.GetTasks(user_id);
 
             return Ok( new { Status = (int)HttpStatusCode.OK, Result = mensaje } );
         }
