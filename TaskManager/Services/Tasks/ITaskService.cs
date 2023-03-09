@@ -5,6 +5,6 @@ namespace TaskManager.Services.Tasks;
 
 public interface ITaskService
 {
-    Task<string> CreateTask(CreateTaskRequest task);
+    Task<Object> CreateTask(CreateTaskRequest task);
     Dictionary<Guid, TaskModel> GetTasks();
 }

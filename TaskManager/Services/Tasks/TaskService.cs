@@ -8,12 +8,12 @@ public class TaskService : ITaskService
 {
 
     private static readonly Dictionary<Guid, TaskModel> _tasks = new(); 
-    public async Task<string> CreateTask(CreateTaskRequest task)
+    public async Task<Object> CreateTask(CreateTaskRequest task)
     {
 
-        string mensaje = await DatabaseService.CrearTask(task.id_usuario, task.Titulo, task.Descripcion, task.FechaFin, task.FechaInicio, task.Estado);
+        var response = await DatabaseService.CrearTask(task.id_usuario, task.Titulo, task.Descripcion, task.FechaFin, task.FechaInicio, task.Estado);
 
-        return mensaje;
+        return response;
     }
 
     public Dictionary<Guid, TaskModel> GetTasks()

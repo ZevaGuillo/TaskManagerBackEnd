@@ -59,9 +59,9 @@ public class DatabaseService
         return user;
     }
 
-    public static async Task<string> CrearTask(string id_usuario, string titulo, string descripcion, DateTime fecha_fin, DateTime fecha_inicio, Boolean estado)
+    public static async Task<Object> CrearTask(string id_usuario, string titulo, string descripcion, DateTime fecha_fin, DateTime fecha_inicio, Boolean estado)
     {
-        string mensaje = String.Empty;
+        var response = new Object();
 
         XDocument xmlParam = XDocument.Parse("<TaskModel>" +
                     "<id_usuario>" + id_usuario + "</id_usuario>" +
@@ -78,12 +78,19 @@ public class DatabaseService
 
         while (reader.Read())
         {
-            mensaje = reader.GetString(0);
+            var tarea_id = reader.GetGuid(0);
+            var mensaje = reader.GetString(1);
+
+            response = new {
+                tarea_id = tarea_id,
+                mensaje = mensaje
+            };
+
             Console.WriteLine(mensaje);
 
         }
 
 
-        return mensaje;
+        return response;
     }
 }

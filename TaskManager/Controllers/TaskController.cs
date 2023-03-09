@@ -30,9 +30,9 @@ public class TaskController : ControllerBase
     {
         try
         {
-            string mensaje = await _taskService.CreateTask(request);
+            var mensaje = await _taskService.CreateTask(request);
 
-            return StatusCode(201, new { Status = (int)HttpStatusCode.Created, Mensaje = mensaje });
+            return StatusCode(201, new { Status = (int)HttpStatusCode.Created, Result = mensaje });
         }
         catch (System.Exception ex)
         {
