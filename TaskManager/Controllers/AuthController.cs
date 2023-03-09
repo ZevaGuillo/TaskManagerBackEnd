@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using System.Net;
 using TaskManager.Contracts.Auth;
 using TaskManager.Services.Auth;
 
@@ -16,39 +17,50 @@ public class AuthController : ControllerBase
         _authService = authService;
     }
 
-    [HttpPost("crear")]
-    public IActionResult CreateUser(CreateUserRequest request)
-    {
-        var user = _authService.Register(request);
-        return Ok(user);
-    }
-
+    [Route("[action]")]
     [HttpPost]
-    public IActionResult Login(LoginRequest request)
+    public async Task<ActionResult<List<CreateUserRequest>>> crearUsuario(CreateUserRequest request)
     {
+
         try
         {
-            LoginResponse response = _authService.Login(request);
-            return Ok(response);
+            var lista = await _authService.Register(request);
+            return Ok(lista);
+
         }
-        catch (System.Exception)
+        catch (System.Exception ex)
         {
-            return BadRequest("si la contraseño con coincide");
+
+            return BadRequest(new ProblemDetails
+            {
+                Status = (int)HttpStatusCode.BadRequest,
+                Title = "Error en la petición",
+                Detail = ex.Message
+            });
         }
+
     }
 
-    [HttpGet("renovar")]
-    public IActionResult RenovarToken(RenovarTokenRequest request)
+    [Route("[action]")]
+    [HttpPost]
+    public async Task<ActionResult<List<LoginRequest>>> login(LoginRequest request)
     {
         try
         {
-            LoginResponse response = _authService.RenovarToken(request.token);
-            return Ok(response);
+            var lista = await _authService.Login(request);
+            return Ok(lista);
         }
-        catch (System.Exception)
+        catch (System.Exception ex)
         {
-            return BadRequest("si la contraseño con coincide");
+
+            return BadRequest(new ProblemDetails
+            {
+                Status = (int)HttpStatusCode.BadRequest,
+                Title = "Error en la petición",
+                Detail = ex.Message
+            });
         }
+
     }
 
 }

@@ -17,5 +17,12 @@ public class User
         this.correo = correo;
         this.contraseña = contraseña;
     }
+    public User(Guid Uid ,string nombre, string correo)
+    {
+        this.Uid = Uid;
+        this.nombre = nombre;
+        this.correo = correo;
+        this.contraseña = contraseña;
+    }
     public User(){}
 }

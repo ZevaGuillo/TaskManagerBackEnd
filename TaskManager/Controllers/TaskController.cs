@@ -1,7 +1,7 @@
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using System.Net;
 using TaskManager.Contracts.Task;
-using TaskManager.Models;
 using TaskManager.Services.Tasks;
 
 namespace TaskManager.Controllers;
@@ -19,53 +19,70 @@ public class TaskController : ControllerBase
         _taskService = taskService;
     }
 
+    [Route("[action]")]
     [HttpPost]
-    [Authorize]
-    public IActionResult CreateTask(CreateTaskRequest request)
+    public async Task<ActionResult> crear(CreateTaskRequest request)
     {
-        var task = new TaskModel(
-            Guid.NewGuid(),
-            request.Titulo,
-            request.Descripcion,
-            request.FechaFin,
-            request.FechaInicio,
-            request.Estado
-        );
+        try
+        {
+            var mensaje = await _taskService.CreateTask(request);
 
-        // TODO: hacer base de datos
-        _taskService.CreateTask(task);
+            return StatusCode(201, new { Status = (int)HttpStatusCode.Created, Result = mensaje });
+        }
+        catch (System.Exception ex)
+        {
 
-        var response = new TaskResponse(
-            task.Id,
-            task.Titulo,
-            task.Descripcion,
-            task.FechaFin,
-            task.FechaInicio,
-            task.Estado
-        );
+            return BadRequest(new ProblemDetails
+            {
+                Status = (int)HttpStatusCode.BadRequest,
+                Title = "Error en la petición",
+                Detail = ex.Message
+            });
+        }
+    }
+
+    [Route("[action]")]
+    [HttpPut]
+    public async Task<ActionResult> editar(UpdateTaskRequest request)
+    {
+        try
+        {
+            var mensaje = await _taskService.EditTask(request);
+
+            return Ok( new { Status = (int)HttpStatusCode.OK, Result = mensaje } );
+        }
+        catch (System.Exception ex)
+        {
+
+            return BadRequest(new ProblemDetails
+            {
+                Status = (int)HttpStatusCode.BadRequest,
+                Title = "Error en la petición",
+                Detail = ex.Message
+            });
+        }
+    }
+
+    [Route("[action]")]
+    [HttpDelete]
+    public async Task<ActionResult<List<CreateTaskRequest>>> eliminar([BindRequired] string id)
+    {
+        try
+        {
+            var mensaje = await _taskService.EliminarTask(id);
+
+            return Ok( new { Status = (int)HttpStatusCode.OK, Result = mensaje } );
+        }
+        catch (System.Exception ex)
+        {
+
+            return BadRequest(new ProblemDetails
+            {
+                Status = (int)HttpStatusCode.BadRequest,
+                Title = "Error en la petición",
+                Detail = ex.Message
+            });
+        }
+    }
     
-
-        return Ok(response);
-    }
-
-    [HttpGet()]
-    public IActionResult GetTasks()
-    {
-        Dictionary<Guid,TaskModel> task = _taskService.GetTasks();
-
-        return Ok(task);
-    }
-
-    [HttpPut("{id:guid}")]
-    public IActionResult UpdateTask(Guid id, UpdateTaskRequest request)
-    {
-        return Ok();
-    }
-
-    [HttpDelete("{id:guid}")]
-    public IActionResult DeleteTasks(Guid id)
-    {
-        return Ok();
-    }
-
 }

@@ -5,47 +5,35 @@ using System.Text;
 using Microsoft.IdentityModel.Tokens;
 using TaskManager.Contracts.Auth;
 using TaskManager.Models;
+using TaskManager.Services.Databse;
 
 namespace TaskManager.Services.Auth;
 public class AuthService : IAuthService
 {
     private readonly IConfiguration _configuration;
-    public static User user = new User();
 
     public AuthService(IConfiguration configuration)
     {
         _configuration = configuration;
     }
 
-    public LoginResponse Login(LoginRequest data)
+    public async Task<LoginResponse> Login(LoginRequest data)
     {
-        //TODO: Validar que exista usuario por uid o correo
-        // return BadRequest("User not found.")
-
-        // si la contraseño con coincide
-        if (!BCrypt.Net.BCrypt.Verify(data.contraseña, user.contraseña))
-        {
-            throw new Exception();
-        }
-
+        User user = await DatabaseService.Login(data.correo, data.contraseña);
         string token = GenerateToken(user.Uid);
         user.token = token;
 
         return new LoginResponse(user.Uid, user.nombre, user.token);
     }
 
-    public User Register(CreateUserRequest newUser)
+    public async Task<User> Register(CreateUserRequest newUser)
     {
 
-        string contrasenaCifrada = BCrypt.Net.BCrypt.HashPassword(newUser.contraseña);
-
+        // Guardar usuario DB
+        User user = await DatabaseService.crearUsuario(newUser.nombre, newUser.correo, newUser.contraseña);
         //TODO: genera JWT
-        user = new User(newUser.nombre, newUser.correo, contrasenaCifrada);
         string token = GenerateToken(user.Uid);
         user.token = token;
-
-        // Guardar usuario DB
-
         return user;
     }
 
@@ -93,16 +81,17 @@ public class AuthService : IAuthService
         }
     }
 
-    public LoginResponse RenovarToken(string token)
-    {
-        var valid = ValidateToken(token);
-        if(valid == "null"){
-           throw new Exception(); 
-        }
+    // public LoginResponse RenovarToken(string token)
+    // {
+    //     var valid = ValidateToken(token);
+    //     if (valid == "null")
+    //     {
+    //         throw new Exception();
+    //     }
 
-        string newToken = GenerateToken(Guid.Parse(valid));
-        user.token = newToken;
+    //     string newToken = GenerateToken(Guid.Parse(valid));
+    //     user.token = newToken;
 
-        return new LoginResponse(user.Uid, user.nombre, user.token);
-    }
+    //     return new LoginResponse(user.Uid, user.nombre, user.token);
+    // }
 }
