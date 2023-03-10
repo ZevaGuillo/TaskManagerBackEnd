@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using System.Net;
@@ -9,6 +10,7 @@ namespace TaskManager.Controllers;
 
 [ApiController]
 [Route("[controller]")]
+[Authorize]
 public class TaskController : ControllerBase
 {
 
